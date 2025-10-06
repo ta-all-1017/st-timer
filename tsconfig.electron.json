@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "outDir": "dist"
+  },
+  "include": ["src/main/**/*", "src/preload/**/*"],
+  "exclude": ["src/renderer/**/*"]
+}
