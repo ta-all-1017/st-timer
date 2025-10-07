@@ -1,5 +1,5 @@
-import { app, Tray, Menu, BrowserWindow, nativeImage } from 'electron'
-import * as path from 'path'
+import { app, Tray, Menu, BrowserWindow } from 'electron'
+import { IconGenerator } from './icon-generator'
 
 export class TrayManager {
   private tray: Tray | null = null
@@ -12,17 +12,11 @@ export class TrayManager {
   }
 
   createTray() {
-    const iconPath = path.join(__dirname, '../../resources/icon.png')
-    const icon = nativeImage.createFromPath(iconPath)
+    // 기본 아이콘 생성
+    const icon = IconGenerator.createTextIcon('으', '#10b981')
+    this.tray = new Tray(icon)
 
-    if (!icon.isEmpty()) {
-      this.tray = new Tray(icon)
-    } else {
-      const defaultIcon = nativeImage.createFromDataURL('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==')
-      this.tray = new Tray(defaultIcon)
-    }
-
-    this.tray.setToolTip('WorkTimer')
+    this.tray.setToolTip('으랏차차 작업레츠기릿')
 
     const contextMenu = Menu.buildFromTemplate([
       {
@@ -67,6 +61,35 @@ export class TrayManager {
         }
       }
     })
+  }
+
+  updateTrayIcon(state: string) {
+    if (!this.tray) return
+    
+    const stateIcons: {[key: string]: { text: string; color: string }} = {
+      working: { text: 'W', color: '#10b981' },
+      distracted: { text: 'D', color: '#ef4444' },
+      resting: { text: 'R', color: '#3b82f6' },
+      eating: { text: 'E', color: '#f59e0b' },
+      sleeping: { text: 'S', color: '#8b5cf6' }
+    }
+    
+    const iconConfig = stateIcons[state] || stateIcons.working
+    const newIcon = IconGenerator.createTextIcon(iconConfig.text, iconConfig.color)
+    
+    this.tray.setImage(newIcon)
+    this.tray.setToolTip(`으랏차차 작업레츠기릿 - ${this.getStateLabel(state)}`)
+  }
+  
+  private getStateLabel(state: string): string {
+    const labels: {[key: string]: string} = {
+      working: '작업 중',
+      distracted: '딴짓 중',
+      resting: '휴식 중',
+      eating: '식사 중',
+      sleeping: '자는 중'
+    }
+    return labels[state] || '알 수 없음'
   }
 
   destroy() {

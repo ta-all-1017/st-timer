@@ -5,6 +5,7 @@ import { ProcessMonitor } from './monitor/process-monitor'
 import { IdleDetector } from './monitor/idle-detector'
 import { StateManager } from './monitor/state-manager'
 import DataManager from './store/data-manager'
+import { setupDebugHandlers } from './debug-helper'
 
 const isDev = process.argv.includes('--dev')
 
@@ -21,7 +22,7 @@ function createMainWindow() {
     height: 800,
     minWidth: 800,
     minHeight: 600,
-    title: 'WorkTimer',
+    title: '으랏차차 작업레츠기릿',
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -44,10 +45,18 @@ function createMainWindow() {
 
 function createOverlayWindow() {
   console.log('🖼️ Creating overlay window...')
+  
+  const dataManager = DataManager.getInstance()
+  const settings = dataManager.getSettings()
+  
+  // 설정에 따른 실제 크기 계산 (1:1 비율)
+  const baseSize = 213  // 정사각형 기본 크기
+  const scaleFactor = (settings.overlaySize || 100) / 100
+  const actualSize = Math.round(baseSize * scaleFactor)
 
   overlayWindow = new BrowserWindow({
-    width: 200,
-    height: 300,
+    width: actualSize,
+    height: actualSize,
     transparent: true,
     frame: false,
     alwaysOnTop: true,
@@ -78,14 +87,14 @@ function createOverlayWindow() {
 
   console.log('🖼️ Display info:', { width, workAreaSize: display.workAreaSize })
 
-  const overlayX = width - 220
+  const overlayX = width - actualSize - 20
   const overlayY = 20
 
   overlayWindow.setBounds({
     x: overlayX,
     y: overlayY,
-    width: 200,
-    height: 300
+    width: actualSize,
+    height: actualSize
   })
 
   console.log('🖼️ Overlay positioned at:', { x: overlayX, y: overlayY })
@@ -152,6 +161,11 @@ function setupIpcHandlers() {
         restingThreshold: settings.restingThreshold,
         sleepingThreshold: settings.sleepingThreshold
       })
+    }
+
+    // 오버레이 설정 적용
+    if (overlayWindow && (settings.overlaySize || settings.overlayTransparency || settings.textSize)) {
+      updateOverlaySettings(settings)
     }
 
     return { success: true }
@@ -251,6 +265,73 @@ function setupIpcHandlers() {
       return { success: false, message: 'No current project set' }
     }
   })
+
+  // 디버깅: 현재 프로그램 상태 출력
+  ipcMain.handle('debug-current-status', () => {
+    const currentProjectId = dataManager.getCurrentProject()
+    const projects = dataManager.getProjects()
+    const currentProject = projects.find(p => p.id === currentProjectId)
+    const currentState = stateManager ? stateManager.getCurrentState() : null
+    
+    console.log('\n🔍 === DEBUG CURRENT STATUS ===')
+    console.log('📂 Current Project ID:', currentProjectId)
+    console.log('📋 Current Project:', currentProject ? {
+      name: currentProject.name,
+      programs: currentProject.programs
+    } : 'None')
+    console.log('🔖 Current State:', currentState)
+    console.log('🖥️ Current Program from StateManager:', currentState?.programName)
+    
+    if (processMonitor) {
+      const currentProgram = processMonitor.getCurrentProgram()
+      console.log('🖥️ Current Program from Monitor:', currentProgram)
+    }
+    
+    return {
+      currentProjectId,
+      currentProject: currentProject ? {
+        name: currentProject.name,
+        programs: currentProject.programs
+      } : null,
+      currentState,
+      currentProgram: processMonitor ? processMonitor.getCurrentProgram() : null
+    }
+  })
+}
+
+function updateOverlaySettings(settings: any) {
+  if (!overlayWindow) return
+  
+  const baseSize = 213  // 정사각형 기본 크기
+  const scaleFactor = (settings.overlaySize || 100) / 100
+  const actualSize = Math.round(baseSize * scaleFactor)
+  
+  // 윈도우 크기 및 위치 업데이트
+  const display = screen.getPrimaryDisplay()
+  const { width } = display.workAreaSize
+  const overlayX = width - actualSize - 20
+  const overlayY = 20
+  
+  overlayWindow.setBounds({
+    x: overlayX,
+    y: overlayY,
+    width: actualSize,
+    height: actualSize
+  })
+  
+  // 오버레이에 설정 전송
+  overlayWindow.webContents.send('overlay-settings-update', {
+    textSize: settings.textSize,
+    transparency: settings.overlayTransparency,
+    size: settings.overlaySize
+  })
+  
+  console.log('🖼️ Overlay settings updated:', {
+    windowSize: `${actualSize}x${actualSize}`,
+    textSize: settings.textSize,
+    transparency: settings.overlayTransparency,
+    size: settings.overlaySize
+  })
 }
 
 app.whenReady().then(() => {
@@ -307,6 +388,10 @@ app.whenReady().then(() => {
     if (overlayWindow) {
       overlayWindow.webContents.send('state-change', state)
     }
+    // Update tray icon
+    if (trayManager) {
+      trayManager.updateTrayIcon(state.state)
+    }
   })
 
   // Send timer updates every second
@@ -334,6 +419,7 @@ app.whenReady().then(() => {
   }, 1000)
 
   setupIpcHandlers()
+  setupDebugHandlers()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

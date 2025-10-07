@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 
 export enum WorkState {
   WORKING = 'working',
-  DISTRACTED = 'distracted',
+  HARDWORKING = 'hardworking',
   RESTING = 'resting',
   EATING = 'eating',
   SLEEPING = 'sleeping'
@@ -59,7 +59,7 @@ export const useTimer = (): TimerState => {
 
       const workingTime = stats.logs
         .filter((log: any) => {
-          const isWorking = log.state === WorkState.WORKING
+          const isWorking = log.state === WorkState.WORKING || log.state === WorkState.HARDWORKING
           const matchesProject = projectId ? log.projectId === projectId : true
           return isWorking && matchesProject
         })
@@ -162,7 +162,7 @@ export const useTimer = (): TimerState => {
   }, [calculateTodayTotal])
 
   // Calculate total time including current session
-  const totalTimeWithSession = currentState === WorkState.WORKING
+  const totalTimeWithSession = (currentState === WorkState.WORKING || currentState === WorkState.HARDWORKING)
     ? todayTotalTime + sessionTime
     : todayTotalTime
 

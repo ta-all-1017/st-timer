@@ -7,6 +7,7 @@ interface Settings {
   overlaySize: number
   textSize: number
   autoStart: boolean
+  themeColor: string
   notifications: {
     stateChange: boolean
     goalAchieved: boolean
@@ -22,6 +23,7 @@ const Settings = () => {
     overlaySize: 100,
     textSize: 14,
     autoStart: false,
+    themeColor: '#10b981',
     notifications: {
       stateChange: true,
       goalAchieved: true,
@@ -49,7 +51,7 @@ const Settings = () => {
 
   const loadStateImages = async () => {
     try {
-      const states = ['working', 'distracted', 'resting', 'eating', 'sleeping']
+      const states = ['working', 'hardworking', 'resting', 'eating', 'sleeping']
       const images: {[key: string]: string} = {}
 
       for (const state of states) {
@@ -147,73 +149,45 @@ const Settings = () => {
   }
 
   const tabs = [
-    { id: 'general', label: '일반' },
-    { id: 'overlay', label: '오버레이' },
-    { id: 'images', label: '이미지' },
-    { id: 'notifications', label: '알림' }
+    { id: 'general', label: '일반', icon: '⚙️' },
+    { id: 'images', label: '이미지', icon: '🎨' },
+    { id: 'notifications', label: '알림', icon: '🔔' }
   ]
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">설정</h1>
+    <div className="p-4">
+      <div className="mb-4">
+        <h1 className="text-2xl font-black text-slate-900 mb-1">설정</h1>
+        <p className="text-slate-500 text-sm">으랏차차 작업레츠기릿 앱을 커스터마이즈하세요</p>
+      </div>
 
       {/* Tab Navigation */}
-      <div className="flex space-x-1 mb-6">
+      <div className="flex space-x-1 mb-4">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 rounded-lg font-medium ${
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 flex items-center space-x-1 ${
               activeTab === tab.id
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ? 'bg-slate-900 text-white'
+                : 'bg-white border border-slate-200 text-slate-600 hover:border-slate-300'
             }`}
           >
-            {tab.label}
+            <span>{tab.icon}</span>
+            <span>{tab.label}</span>
           </button>
         ))}
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg border border-slate-200 p-5">
         {/* General Tab */}
         {activeTab === 'general' && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold mb-4">일반 설정</h2>
+          <div className="space-y-5">
+            <h2 className="text-lg font-bold text-slate-800">일반 설정</h2>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                휴식 중 전환 시간
-              </label>
-              <div className="flex items-center space-x-4">
-                <input
-                  type="range"
-                  min="60"
-                  max="1800"
-                  step="60"
-                  value={settings.restingThreshold}
-                  onChange={(e) => updateSetting('restingThreshold', Number(e.target.value))}
-                  className="flex-1"
-                />
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="number"
-                    min="60"
-                    max="1800"
-                    value={settings.restingThreshold}
-                    onChange={(e) => updateSetting('restingThreshold', Number(e.target.value))}
-                    className="w-20 p-2 border border-gray-300 rounded text-sm"
-                  />
-                  <span className="text-sm text-gray-600">초</span>
-                </div>
-              </div>
-              <div className="flex justify-between text-sm text-gray-500 mt-1">
-                <span>1분</span>
-                <span>30분</span>
-              </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="bg-slate-50 rounded-lg p-4">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
                 수면 중 전환 시간
               </label>
               <div className="flex items-center space-x-4">
@@ -224,7 +198,7 @@ const Settings = () => {
                   step="300"
                   value={settings.sleepingThreshold}
                   onChange={(e) => updateSetting('sleepingThreshold', Number(e.target.value))}
-                  className="flex-1"
+                  className="flex-1 accent-indigo-500"
                 />
                 <div className="flex items-center space-x-2">
                   <input
@@ -233,126 +207,132 @@ const Settings = () => {
                     max="10800"
                     value={settings.sleepingThreshold}
                     onChange={(e) => updateSetting('sleepingThreshold', Number(e.target.value))}
-                    className="w-20 p-2 border border-gray-300 rounded text-sm"
+                    className="w-24 px-3 py-2 bg-white border-2 border-slate-100 rounded-xl font-semibold text-slate-700 focus:outline-none focus:border-indigo-400"
                   />
-                  <span className="text-sm text-gray-600">초</span>
+                  <span className="text-sm font-semibold text-slate-600">초</span>
                 </div>
               </div>
-              <div className="flex justify-between text-sm text-gray-500 mt-1">
+              <div className="flex justify-between text-xs text-slate-400 mt-2">
                 <span>10분</span>
                 <span>180분</span>
               </div>
             </div>
 
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="autoStart"
-                checked={settings.autoStart}
-                onChange={(e) => updateSetting('autoStart', e.target.checked)}
-                className="mr-2"
-              />
-              <label htmlFor="autoStart" className="text-sm font-medium text-gray-700">
-                시작 프로그램 등록
+            <div className="bg-slate-50 rounded-xl p-6">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-4">
+                열심히 상태 전환 시간
               </label>
+              <div className="flex items-center space-x-4">
+                <input
+                  type="range"
+                  min="300"
+                  max="3600"
+                  step="300"
+                  value={settings.hardworkingThreshold}
+                  onChange={(e) => updateSetting('hardworkingThreshold', Number(e.target.value))}
+                  className="flex-1 accent-orange-500"
+                />
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="number"
+                    min="300"
+                    max="3600"
+                    value={settings.hardworkingThreshold}
+                    onChange={(e) => updateSetting('hardworkingThreshold', Number(e.target.value))}
+                    className="w-24 px-3 py-2 bg-white border-2 border-slate-100 rounded-xl font-semibold text-slate-700 focus:outline-none focus:border-orange-400"
+                  />
+                  <span className="text-sm font-semibold text-slate-600">초</span>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs text-slate-400 mt-2">
+                <span>5분</span>
+                <span>60분</span>
+              </div>
+              <p className="text-xs text-slate-500 mt-2">작업 상태가 이 시간 동안 지속되면 '열심히' 상태로 전환됩니다.</p>
+            </div>
+
+            <div className="bg-slate-50 rounded-xl p-6">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="autoStart"
+                  checked={settings.autoStart}
+                  onChange={(e) => updateSetting('autoStart', e.target.checked)}
+                  className="w-5 h-5 text-emerald-500 border-2 border-slate-300 rounded focus:ring-emerald-400 mr-3"
+                />
+                <label htmlFor="autoStart" className="text-sm font-semibold text-slate-700">
+                  시작 프로그램 등록
+                </label>
+              </div>
+            </div>
+
+            <div className="bg-slate-50 rounded-lg p-4">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
+                테마 색상 (Key Color)
+              </label>
+              <div className="grid grid-cols-6 gap-2">
+                {[
+                  { name: 'Emerald', color: '#10b981' },
+                  { name: 'Blue', color: '#3b82f6' },
+                  { name: 'Purple', color: '#8b5cf6' },
+                  { name: 'Pink', color: '#ec4899' },
+                  { name: 'Orange', color: '#f97316' },
+                  { name: 'Red', color: '#ef4444' }
+                ].map((theme) => (
+                  <button
+                    key={theme.name}
+                    onClick={() => updateSetting('themeColor', theme.color)}
+                    className={`w-12 h-12 rounded-lg border-2 transition-all ${
+                      settings.themeColor === theme.color 
+                        ? 'border-slate-900 scale-110' 
+                        : 'border-slate-200 hover:border-slate-300'
+                    }`}
+                    style={{ backgroundColor: theme.color }}
+                    title={theme.name}
+                  />
+                ))}
+              </div>
+              <p className="text-xs text-slate-500 mt-2">선택한 색상이 앱의 주요 요소에 적용됩니다.</p>
             </div>
           </div>
         )}
 
-        {/* Overlay Tab */}
-        {activeTab === 'overlay' && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold mb-4">오버레이 설정</h2>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                텍스트 크기: {settings.textSize}px
-              </label>
-              <select
-                value={settings.textSize}
-                onChange={(e) => updateSetting('textSize', Number(e.target.value))}
-                className="w-32 p-2 border border-gray-300 rounded-lg"
-              >
-                <option value={12}>12px</option>
-                <option value={14}>14px</option>
-                <option value={16}>16px</option>
-                <option value={18}>18px</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                배경 투명도: {settings.overlayTransparency}%
-              </label>
-              <input
-                type="range"
-                min="20"
-                max="100"
-                value={settings.overlayTransparency}
-                onChange={(e) => updateSetting('overlayTransparency', Number(e.target.value))}
-                className="w-full"
-              />
-              <div className="flex justify-between text-sm text-gray-500 mt-1">
-                <span>20%</span>
-                <span>100%</span>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                오버레이 크기: {settings.overlaySize}%
-              </label>
-              <input
-                type="range"
-                min="50"
-                max="200"
-                value={settings.overlaySize}
-                onChange={(e) => updateSetting('overlaySize', Number(e.target.value))}
-                className="w-full"
-              />
-              <div className="flex justify-between text-sm text-gray-500 mt-1">
-                <span>50%</span>
-                <span>200%</span>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Images Tab */}
         {activeTab === 'images' && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold mb-4">이미지 설정</h2>
+          <div className="space-y-8">
+            <h2 className="text-2xl font-bold text-slate-800">이미지 설정</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
                 { state: 'working', label: '작업 중', emoji: '💻' },
-                { state: 'distracted', label: '딴짓 중', emoji: '📱' },
+                { state: 'hardworking', label: '열심히 하는 중', emoji: '🔥' },
                 { state: 'resting', label: '휴식 중', emoji: '😌' },
                 { state: 'eating', label: '식사 중', emoji: '🍽️' },
                 { state: 'sleeping', label: '수면 중', emoji: '😴' }
               ].map((item) => (
-                <div key={item.state} className="border border-gray-200 rounded-lg p-4">
-                  <h3 className="font-medium mb-2">{item.label}</h3>
+                <div key={item.state} className="bg-slate-50 rounded-xl p-6">
+                  <h3 className="font-bold text-slate-800 mb-4">{item.label}</h3>
                   <div className="flex items-center space-x-4">
-                    <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-2xl">
+                    <div className="w-20 h-20 bg-white border-2 border-slate-100 rounded-xl flex items-center justify-center text-3xl">
                       {item.emoji}
                     </div>
                     <div className="flex-1">
                       <button
                         onClick={() => handleImageUpload(item.state)}
                         disabled={uploadingState === item.state}
-                        className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 mb-2 block disabled:opacity-50"
+                        className="w-full px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-semibold hover:bg-emerald-600 mb-2 disabled:opacity-50 transition-colors"
                       >
                         {uploadingState === item.state ? '업로드 중...' : '찾아보기'}
                       </button>
                       <button
                         onClick={() => handleImageReset(item.state)}
-                        className="bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-400 block"
+                        className="w-full px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-300 transition-colors"
                       >
                         기본값으로 복원
                       </button>
                       {stateImages[item.state] && (
-                        <p className="text-xs text-gray-500 mt-1">커스텀 이미지 적용됨</p>
+                        <p className="text-xs text-emerald-600 font-semibold mt-2">✓ 커스텀 이미지 적용됨</p>
                       )}
                     </div>
                   </div>
@@ -360,12 +340,12 @@ const Settings = () => {
               ))}
             </div>
 
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h4 className="font-medium text-blue-800 mb-2">권장 사항</h4>
-              <ul className="text-sm text-blue-700 space-y-1">
-                <li>• 지원 형식: PNG, GIF, WEBP</li>
-                <li>• 권장 크기: 200x200px</li>
-                <li>• 최대 파일 크기: 10MB</li>
+            <div className="bg-sky-50 border-2 border-sky-100 rounded-xl p-6">
+              <h4 className="font-bold text-sky-900 mb-3">📌 권장 사항</h4>
+              <ul className="text-sm text-sky-700 space-y-2">
+                <li className="flex items-center"><span className="mr-2">•</span> 지원 형식: PNG, GIF, WEBP</li>
+                <li className="flex items-center"><span className="mr-2">•</span> 권장 크기: 200x200px</li>
+                <li className="flex items-center"><span className="mr-2">•</span> 최대 파일 크기: 10MB</li>
               </ul>
             </div>
           </div>
@@ -373,57 +353,72 @@ const Settings = () => {
 
         {/* Notifications Tab */}
         {activeTab === 'notifications' && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold mb-4">알림 설정</h2>
+          <div className="space-y-8">
+            <h2 className="text-2xl font-bold text-slate-800">알림 설정</h2>
 
             <div className="space-y-4">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="stateChange"
-                  checked={settings.notifications.stateChange}
-                  onChange={(e) => updateNotificationSetting('stateChange', e.target.checked)}
-                  className="mr-3"
-                />
-                <label htmlFor="stateChange" className="text-sm font-medium text-gray-700">
-                  상태 전환 알림
-                </label>
+              <div className="bg-slate-50 rounded-xl p-6">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="stateChange"
+                    checked={settings.notifications.stateChange}
+                    onChange={(e) => updateNotificationSetting('stateChange', e.target.checked)}
+                    className="w-5 h-5 text-emerald-500 border-2 border-slate-300 rounded focus:ring-emerald-400 mr-4"
+                  />
+                  <div>
+                    <label htmlFor="stateChange" className="text-base font-semibold text-slate-700">
+                      상태 전환 알림
+                    </label>
+                    <p className="text-xs text-slate-500 mt-1">작업 상태가 변경될 때 알려드립니다</p>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="goalAchieved"
-                  checked={settings.notifications.goalAchieved}
-                  onChange={(e) => updateNotificationSetting('goalAchieved', e.target.checked)}
-                  className="mr-3"
-                />
-                <label htmlFor="goalAchieved" className="text-sm font-medium text-gray-700">
-                  목표 시간 달성 알림
-                </label>
+              <div className="bg-slate-50 rounded-xl p-6">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="goalAchieved"
+                    checked={settings.notifications.goalAchieved}
+                    onChange={(e) => updateNotificationSetting('goalAchieved', e.target.checked)}
+                    className="w-5 h-5 text-emerald-500 border-2 border-slate-300 rounded focus:ring-emerald-400 mr-4"
+                  />
+                  <div>
+                    <label htmlFor="goalAchieved" className="text-base font-semibold text-slate-700">
+                      목표 시간 달성 알림
+                    </label>
+                    <p className="text-xs text-slate-500 mt-1">일일 목표를 달성하면 축하 메시지를 보냅니다</p>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="longDistraction"
-                  checked={settings.notifications.longDistraction}
-                  onChange={(e) => updateNotificationSetting('longDistraction', e.target.checked)}
-                  className="mr-3"
-                />
-                <label htmlFor="longDistraction" className="text-sm font-medium text-gray-700">
-                  장시간 딴짓 경고
-                </label>
+              <div className="bg-slate-50 rounded-xl p-6">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="longDistraction"
+                    checked={settings.notifications.longDistraction}
+                    onChange={(e) => updateNotificationSetting('longDistraction', e.target.checked)}
+                    className="w-5 h-5 text-emerald-500 border-2 border-slate-300 rounded focus:ring-emerald-400 mr-4"
+                  />
+                  <div>
+                    <label htmlFor="longDistraction" className="text-base font-semibold text-slate-700">
+                      장시간 딴짓 경고
+                    </label>
+                    <p className="text-xs text-slate-500 mt-1">너무 오래 딴짓하면 알려드립니다</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         )}
 
         {/* Save Button */}
-        <div className="mt-8 pt-6 border-t">
+        <div className="mt-8 pt-6 border-t-2 border-slate-100">
           <button
             onClick={saveSettings}
-            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
+            className="px-8 py-3 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition-colors"
           >
             설정 저장
           </button>

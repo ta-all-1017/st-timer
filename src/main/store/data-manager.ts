@@ -22,12 +22,13 @@ export interface WorkLog {
 }
 
 export interface Settings {
-  restingThreshold: number
   sleepingThreshold: number
+  hardworkingThreshold: number  // 작업중 → 열심히 전환 시간 (초)
   overlayTransparency: number
   overlaySize: number
   textSize: number
   autoStart: boolean
+  themeColor: string  // Key color for theme
   notifications: {
     stateChange: boolean
     goalAchieved: boolean
@@ -56,12 +57,13 @@ class DataManager {
         projects: [],
         workLogs: [],
         settings: {
-          restingThreshold: 300,
-          sleepingThreshold: 1800,
+          sleepingThreshold: 1800,      // 30분 (자는중 전환)
+          hardworkingThreshold: 1200,   // 20분 (열심히 전환)
           overlayTransparency: 90,
           overlaySize: 100,
           textSize: 14,
           autoStart: false,
+          themeColor: '#10b981',        // 기본 emerald-500
           notifications: {
             stateChange: true,
             goalAchieved: true,
@@ -246,12 +248,11 @@ class DataManager {
     const logs = this.getWorkLogs(startDate, endDate)
 
     const totalWorkTime = logs
-      .filter(log => log.state === WorkState.WORKING)
+      .filter(log => log.state === WorkState.WORKING || log.state === WorkState.HARDWORKING)
       .reduce((sum, log) => sum + log.duration, 0)
 
-    const totalDistractedTime = logs
-      .filter(log => log.state === WorkState.DISTRACTED)
-      .reduce((sum, log) => sum + log.duration, 0)
+    // 새로운 상태 시스템에서는 딴짓 상태가 없음 (휴식중으로 통합)
+    const totalDistractedTime = 0
 
     const totalRestTime = logs
       .filter(log => log.state === WorkState.RESTING)

@@ -1,7 +1,7 @@
 {
   "name": "work-timer",
   "version": "1.0.0",
-  "description": "WorkTimer - A productivity tracking application",
+  "description": "으랏차차 작업레츠기릿 - 생산성 추적 애플리케이션",
   "main": "dist/main/index.js",
   "scripts": {
     "dev": "concurrently -k \"npm run dev:vite\" \"npm run dev:electron\"",
@@ -49,5 +49,18 @@
     "typescript": "5",
     "vite": "4",
     "wait-on": "^9.0.1"
+  },
+  "build": {
+    "productName": "으랏차차 작업레츠기릿",
+    "appId": "com.yourcompany.workletsgirit",
+    "directories": {
+      "output": "dist-app"
+    },
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": "nsis"
+    }
   }
 }

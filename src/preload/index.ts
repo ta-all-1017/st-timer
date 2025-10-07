@@ -25,5 +25,7 @@ contextBridge.exposeInMainWorld('electron', {
   quit: () => ipcRenderer.invoke('quit-app'),
   testProgramChange: (programName: string) => ipcRenderer.invoke('test-program-change', programName),
   forceStateChange: (state: string) => ipcRenderer.invoke('force-state-change', state),
-  addCursorToProject: () => ipcRenderer.invoke('add-cursor-to-project')
+  addCursorToProject: () => ipcRenderer.invoke('add-cursor-to-project'),
+  debugCurrentStatus: () => ipcRenderer.invoke('debug-current-status'),
+  debugGetCurrentProgram: () => ipcRenderer.invoke('debug-get-current-program')
 })
