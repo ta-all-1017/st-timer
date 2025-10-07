@@ -57,7 +57,8 @@
       "output": "dist-app"
     },
     "mac": {
-      "category": "public.app-category.productivity"
+      "category": "public.app-category.productivity",
+      "identity": null
     },
     "win": {
       "target": "nsis"
